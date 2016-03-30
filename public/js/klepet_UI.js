@@ -23,6 +23,8 @@ function procesirajVnosUporabnika(klepetApp, socket) {
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
     }
   } else {
+    var slika = preveriSlike(sporocilo);
+    console.log(slika);
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
@@ -50,6 +52,13 @@ function filtirirajVulgarneBesede(vhod) {
     });
   }
   return vhod;
+}
+
+function preveriSlike(vhod) {
+  var regex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/ig;
+  return vhod.replace(regex, function(url) {
+      return '<img src="' + url + '" width="200" style="padding-left: 20px">';
+  });
 }
 
 $(document).ready(function() {
