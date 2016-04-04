@@ -1,7 +1,10 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeSlika = sporocilo.indexOf('<img width=') > -1;
+  console.log(sporocilo);
+  if (jeSmesko || jeSlika) {
+    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/&lt;img/g, '<img').replace('png\' /&gt;', 'png\' />').replace('gif\' /&gt;', 'gif\' />').replace('jpg\' /&gt;', 'jpg\' />').replace(/&lt;br&gt;/g, '<br>');
+    console.log(sporocilo + "DA");
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -14,7 +17,12 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
+  sporocilo = preveriSlike(sporocilo);
+    console.log(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
+  console.log(sporocilo);
+  
+
   var sistemskoSporocilo;
 
   if (sporocilo.charAt(0) == '/') {
@@ -23,8 +31,6 @@ function procesirajVnosUporabnika(klepetApp, socket) {
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
     }
   } else {
-    var slika = preveriSlike(sporocilo);
-    console.log(slika);
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
@@ -55,10 +61,15 @@ function filtirirajVulgarneBesede(vhod) {
 }
 
 function preveriSlike(vhod) {
-  var regex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/ig;
-  return vhod.replace(regex, function(url) {
-      return '<img src="' + url + '" width="200" style="padding-left: 20px">';
-  });
+  var regex = /(https?:\/\/.*?\.(?:png|jpg|gif))/ig;
+  var result = vhod.match(regex);
+  console.log("result " + result);
+  for (var i = 0; i <= result.length; i++) {
+    vhod = vhod + "<br><img width='200px' style='padding-left: 20px' src='" + result[i] + "' />";
+  }
+
+  console.log("vhod " + vhod);
+  return vhod;
 }
 
 $(document).ready(function() {
