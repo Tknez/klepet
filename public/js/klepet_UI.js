@@ -58,7 +58,7 @@ function filtirirajVulgarneBesede(vhod) {
 
 function preveriYoutube(vhod) {
   var regex = /(https?:\/\/www.youtube.com\/watch\?v=.*?($|\s))/ig;
-  
+
   var result = vhod.match(regex);
   console.log("result " + result);
   for (var i = 0; i < result.length; i++) {
