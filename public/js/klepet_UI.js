@@ -1,9 +1,12 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
   var jeSlika = sporocilo.indexOf('<img width=') > -1;
-  if (jeSmesko || jeSlika) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/&lt;img/g, '<img').replace(/png\' \/&gt;/g, 'png\' />').replace(/gif\' \/&gt;/g, 'gif\' />').replace(/jpg\' \/&gt;/g, 'jpg\' />').replace(/&lt;br&gt;/g, '<br>');
+  var jeYoutube = sporocilo.indexOf('<iframe') > -1;
+  if (jeSmesko || jeSlika || jeYoutube) {
     console.log(sporocilo);
+    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace(/&lt;img/g, '<img').replace(/&lt;iframe/g, '<iframe').replace(/png\' \/&gt;/g, 'png\' />').replace(/gif\' \/&gt;/g, 'gif\' />').replace(/jpg\' \/&gt;/g, 'jpg\' />').replace(/&lt;br&gt;/g, '<br>').replace(/&lt;br&gt;&lt;iframe/g, '<br><iframe').replace(/screen&gt;&lt;\/iframe&gt;/g, 'screen></iframe>');
+          console.log(jeYoutube);
+          console.log(sporocilo);
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -17,8 +20,10 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
+  sporocilo = preveriYoutube(sporocilo);
   sporocilo = preveriSlike(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
+
 
   var sistemskoSporocilo;
 
@@ -60,12 +65,23 @@ function filtirirajVulgarneBesede(vhod) {
 function preveriSlike(vhod) {
   var regex = /(https?:\/\/.*?\.(?:png|jpg|gif))/ig;
   var result = vhod.match(regex);
-  console.log("result " + result);
-  for (var i = 0; i < result.length; i++) {
-    vhod = vhod + "<br><img width='200px' style='padding-left: 20px' src='" + result[i] + "' />";
+  if (result != null) {
+    for (var i = 0; i < result.length; i++) {
+      vhod = vhod + "<br><img width='200px' style='padding-left: 20px' src='" + result[i] + "' />";
+    }
   }
+  return vhod;
+}
 
-  console.log("vhod " + vhod);
+function preveriYoutube(vhod) {
+  var regex = /(https?:\/\/www.youtube.com\/watch\?v=.*?($|\s))/ig;
+  var result = vhod.match(regex);
+  if (result != null) {
+    for (var i = 0; i < result.length; i++) {
+      vhod = vhod + "<br><iframe widht='200px' height='150px' style='margin-left: 20px' src='https://www.youtube.com/embed/" + result[i].replace('https://www.youtube.com/watch?v=', '') + "' allowfullscreen></iframe>";
+      console.log("1" +result[i]);
+    }
+  }
   return vhod;
 }
 
